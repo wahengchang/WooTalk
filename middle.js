@@ -2,6 +2,7 @@ var async = require('async');
 var request = require('request');
 var _ = require('underscore');
 var ent = require('ent');
+var id = 0
 var url = 'https://wootalk.today/';
 var WebSocket = require('ws');
 var sleep = require('sleep');
@@ -63,28 +64,29 @@ async.parallel([
 		
 
 		//var sample = ["new_message",{"id":null,"channel":null,"user_id":845609,"data":{"sender":1,"message":"å®å®","time":1431750704164,"msg_id":1},"success":null,"result":null,"token":null,"server_token":null}];
-		var sample = ["new_message",{"id":null,"channel":null,"user_id":876225,"data":{"sender":1,"message":"對","time":1431952068796,"mobile":null},"success":null,"result":null,"token":null,"server_token":null}];
+		var sample = ["new_message",{"data":{"sender":1,"message":"對","time":1431952068796,"mobile":null,"device":2,"id":id}}];
 		if(input){
 			var sendToWho = input.substring(0, 3);
 			var content =  input.substring(4, input.length-1);
 		}
+		id = id +1
 		if(sendToWho == 'end'){
 			console.log('process.exit()');
 			process.exit();
-		}else if(sendToWho == 'toa' && userId_A){
+		}else if(sendToWho == 'toa' /*&& userId_A*/){
 			//console.log('發話給A用的user_id: '+userId_A);
 				console.log('代替輸入send to A: '+content);
-				sample[1]['user_id'] = userId_A;
+				//sample[1]['user_id'] = userId_A;
 				sample[1]['data']['message'] = content;
 				fakeMessage = JSON.stringify(sample);
 				//console.log(fakeMessage);
 				wsA.send(fakeMessage);
 			
-		}else if(sendToWho == 'tob' && userId_B){
+		}else if(sendToWho == 'tob' /*&& userId_B*/){
 			//console.log('發話給B用的user_id: '+userId_B);
 			
 				console.log('代替輸入send to B: '+content);
-				sample[1]['user_id'] = userId_B;
+				//sample[1]['user_id'] = userId_B;
 				sample[1]['data']['message'] = content;
 				fakeMessage = JSON.stringify(sample);
 				//console.log(fakeMessage);
@@ -97,6 +99,7 @@ async.parallel([
 			flagA = true;
 		}
 		else{
+			console.log(sendToWho);
 			console.log('尚未取得足夠對話參數')
 		}
 	});
@@ -112,6 +115,7 @@ async.parallel([
 	wsA.on('message', function(message) {
 		//console.log(message)
 		var pa = JSON.parse(message)[0]; //parse
+		//console.log(pa)
 		var ev = pa[0]; //event名字
 		/*
 			client_connected, new_message, websocket_rails.ping, update_state
@@ -125,16 +129,14 @@ async.parallel([
 		if (ev == 'new_message') {
 			if( pa[1]['user_id'] ){
 				userId_A = pa[1]['user_id'];//取得和A之間的user_id
-				if (flagA_first){
-					console.log('Aid: '+userId_A);
-					flagA_first=false;
-				}
+			//	console.log('Aid: '+userId_A);
+				
 			}
 			pa[1]['data']['sender'] = 1; //使系統知道是我要傳給對方
 			message = JSON.stringify(pa);
 			if (sender == 2) {
 				console.log("A：「 " + msg + " 」");
-				//console.log(message);
+				console.log(message);
 				if(flagA==false){
 					wsB.send(message);
 				}
@@ -203,6 +205,7 @@ async.parallel([
 				console.log("B：「 " + msg + " 」\n");
 				//console.log(message);
 				if (flagA == false){
+					console.log(message)
 					wsA.send(message);
 				}
 			} else if (!sender && leave) {
