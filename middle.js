@@ -99,7 +99,7 @@ async.parallel([
 			flagA = true;
 		}
 		else{
-			console.log(sendToWho);
+			//console.log(sendToWho);
 			console.log('尚未取得足夠對話參數')
 		}
 	});
@@ -136,7 +136,7 @@ async.parallel([
 			message = JSON.stringify(pa);
 			if (sender == 2) {
 				console.log("A：「 " + msg + " 」");
-				console.log(message);
+				//console.log(message);
 				if(flagA==false){
 					wsB.send(message);
 				}
@@ -205,7 +205,7 @@ async.parallel([
 				console.log("B：「 " + msg + " 」\n");
 				//console.log(message);
 				if (flagA == false){
-					console.log(message)
+				//	console.log(message)
 					wsA.send(message);
 				}
 			} else if (!sender && leave) {
